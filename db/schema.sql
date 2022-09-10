@@ -4,12 +4,10 @@ CREATE DATABASE employees_db;
 -- all code in app will use this database
 USE employees_db;
 
-
 CREATE TABLE department (
     id INT NOT NULL,
     department_name VARCHAR(30), -- to hold department name
     PRIMARY KEY(id)
-
 );
 
 CREATE TABLE role (

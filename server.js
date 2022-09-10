@@ -3,13 +3,13 @@ const mysql = require('mysql2');
 const inquirer = require('inquirer')
 const cTable = require('console.table');
 console.table([
-  {
-    name: 'foo',
-    age: 10
-  }, {
-    name: 'bar',
-    age: 20
-  }
+    {
+        name: 'foo',
+        age: 10
+    }, {
+        name: 'bar',
+        age: 20
+    }
 ]);
 
 const PORT = process.env.PORT || 3001;
@@ -20,49 +20,47 @@ app.use(express.json());
 
 // create connection to the database
 const db = mysql.createConnection(
-  {
-    host: 'localhost',
-    user: 'root',
-    password: 'rootmyroot',
-    database: 'classlist_db'
-  },
-  console.log(`Connected to the classlist_db database.`)
+    {
+        host: 'localhost',
+        user: 'root',
+        password: 'rootmyroot',
+        database: 'classlist_db'
+    },
+    console.log(`Connected to the employees_db database.`)
 );
 
 // initial query to check if connection to db has been made
-app.get('/api/role', (req, res) => { 
-db.query('SELECT * FROM role', function (err, results) {
-  res.json(results);
-})
+app.get('/api/employee', (req, res) => {
+    db.query('SELECT * FROM employee', function (err, results) {
+        res.json(results);
+    })
 });
 
-app.post('/api/students', (req, res) => { 
+app.post('/api/students', (req, res) => {
     db.query('SELECT * FROM students', function (err, results) {
-      res.json(results);
+        res.json(results);
     })
-    });
+});
 
-app.put('/api/students', (req, res) => { 
-        db.query('SELECT * FROM students', function (err, results) {
-          res.json(results);
-        })
-        });
+app.put('/api/students', (req, res) => {
+    db.query('SELECT * FROM students', function (err, results) {
+        res.json(results);
+    })
+});
 
-app.delete('/api/students', (req, res) => { 
-            db.query('SELECT * FROM students', function (err, results) {
-              res.json(results);
-            })
-            });
+app.delete('/api/students', (req, res) => {
+    db.query('SELECT * FROM students', function (err, results) {
+        res.json(results);
+    })
+});
 
 
 // tells if there is an error
 app.use((req, res) => {
-  res.status(404).end();
+    res.status(404).end();
 });
-
-
 
 // port established
 app.listen(PORT, () => {
-  console.log(`Server running on port https://localhost/${PORT}`);
+    console.log(`Server running on port https://localhost/${PORT}`);
 });
