@@ -1,6 +1,16 @@
 const express = require('express');
 const mysql = require('mysql2');
 const inquirer = require('inquirer')
+const cTable = require('console.table');
+console.table([
+  {
+    name: 'foo',
+    age: 10
+  }, {
+    name: 'bar',
+    age: 20
+  }
+]);
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -20,8 +30,8 @@ const db = mysql.createConnection(
 );
 
 // initial query to check if connection to db has been made
-app.get('/api/students', (req, res) => { 
-db.query('SELECT * FROM students', function (err, results) {
+app.get('/api/role', (req, res) => { 
+db.query('SELECT * FROM role', function (err, results) {
   res.json(results);
 })
 });
