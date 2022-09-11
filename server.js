@@ -46,7 +46,7 @@ const mainMenu = () => {
     } else if (data.menu === "Add an employee") {
         addEmployee();
     } else if(data.menu === "Update employee role") {
-        updateEmployee();
+        updateEmpRole();
     } else if(data.menu === "Delete an employee") {
         delEmp();
     } else {
@@ -58,21 +58,21 @@ const mainMenu = () => {
 
 const viewEmployees = () => {
     db.query("SELECT * FROM employee", function (err, results) {
-        console.table(results);
+        console.table('\n', results);
         mainMenu();
       });
 }
 
 const viewDepts = () => {
     db.query('SELECT * FROM department', function (err, results) {
-        console.table(results);
+        console.table('\n', results);
         mainMenu();
       });
 }
 
 const viewRoles = () => {
     db.query('SELECT * FROM role', function (err, results) {
-        console.table(results);
+        console.table('\n', results);
         mainMenu();
     })
 }
@@ -158,6 +158,7 @@ inquirer.prompt([
     db.query(sql, params, (err, results) => {
         if (err) throw err;
         viewEmployees()
+        console.log("Employee has been added")
         return results
     });
 });
@@ -211,12 +212,48 @@ inquirer.prompt([
         const params = [data.role_title, data.department_id, data.role_salary];
         db.query(sql, params, (err, results) => {
             if (err) throw err;
-            console.log("==============================")
             viewRoles()
             return results
         });
     });
 };
+
+const updateEmpRole = () => {
+    inquirer.prompt ([
+        {
+            type: "input",
+            message: "What is employee's ID number?",
+            name: "id",
+            validate: (updateEmp) => {
+                if(!updateEmp) {
+                    console.log('\n', "Please enter a valid employee ID number")
+                } else {
+                    return true
+                }
+            }
+        },
+        {
+            type: "input",
+            message: "What is employee's role ID?",
+            name: "role_id",
+            validate: (updateRole) => {
+                if(!updateRole) {
+                    console.log('\n', "Please enter an existing ID role number")
+                } else {
+                    return true
+                }
+            }
+        }
+    ]).then((data) => {
+        const sql = `UPDATE employee SET role_id = ? WHERE id = ?`
+        const params = [data.role_id, data.id]
+            db.query(sql, params, function (err, results) {
+                if (err) throw err;
+                viewEmployees()
+                return results
+            })
+    })
+}
 
 const delEmp = () => {
 
