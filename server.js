@@ -167,10 +167,10 @@ const addRole = () => {
 inquirer.prompt([
     {
     type: "input",
-    message: "What role woul you like to add?",
-    name: "role_name",
-    validate: (role_name) => {
-        if(!role_name) {
+    message: "What role would you like to add?",
+    name: "role_title",
+    validate: (role_title) => {
+        if(!role_title) {
             console.log("Please enter a new role name")
         } else {
             return true
@@ -179,10 +179,44 @@ inquirer.prompt([
     },
     {
         type: "input",
-        message: "What is the role's "
+        message: "What department ID should this role be assigned to?",
+        name: "department_id",
+    },
+
+        // type: "list",
+        // message: "Which department should the role be assigned to?",
+        // name: "department_role",
+        // choices: [
+        //     "Legal",
+        //     "Payroll",
+        //     "Engineering",
+        //     "Public Relations",
+        //     "Sales"
+        // ]
+    //},
+    {
+        type: "input",
+        message: "What is the salary of the role? Use whole numbers and decimals. Ex: 150000.75",
+        name: "role_salary",
+        validate: (role_salary) => {
+            if(!role_salary) {
+                console.log("Please enter a valid role salary. Use whole numbers and decimals. Ex: 150000.75")
+            } else {
+                return true
+            }
+        }
     }
-]);
-}
+]).then((data) => {
+        const sql = `INSERT INTO role (role_title, department_id, role_salary) VALUES (?, ?, ?)`
+        const params = [data.role_title, data.department_id, data.role_salary];
+        db.query(sql, params, (err, results) => {
+            if (err) throw err;
+            console.log("==============================")
+            viewRoles()
+            return results
+        });
+    });
+};
 
 const delEmp = () => {
 

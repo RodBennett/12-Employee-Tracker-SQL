@@ -5,10 +5,10 @@ VALUES  (1, "Legal"),
         (4, "Public Relations"),
         (5, "Sales");
 
-INSERT INTO role (id, title, salary, department_id)
+INSERT INTO role (id, role_title, role_salary, department_id)
 Values  (5, "Manager", 225000, 1),
-        (3, "CFO", 125000, 2),
-        (1, "Engineer", 200000, 3),
+        (3, "CFO", 125000.05, 2),
+        (1, "Engineer", 200000.75, 3),
         (2, "HR Manager", 150000, 4),
         (4, "Head of Sales", 175000, 1);
 
