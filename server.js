@@ -57,21 +57,21 @@ const mainMenu = () => {
 }
 
 const viewEmployees = () => {
-    db.query("SELECT e.id, e.first_name, e.last_name, r.title, d.department_name AS department, r.salary FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON d.id = r.department_id", function (err, results) {
+    db.query("SELECT e.id AS EmpID, e.first_name, e.last_name, d.department_name AS department, r.title, r.salary, e.manager_id AS manager FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON d.id = r.department_id", function (err, results) {
         console.table('\n', results);
         mainMenu();
       });
 }
 
 const viewDepts = () => {
-    db.query('SELECT * FROM department', function (err, results) {
+    db.query('SELECT d.id, d.department_name AS department FROM department d', function (err, results) {
         console.table('\n', results);
         mainMenu();
       });
 }
 
 const viewRoles = () => {
-    db.query('SELECT * FROM role', function (err, results) {
+    db.query('SELECT r.id, r.title, d.department_name AS department, r.salary FROM role r LEFT JOIN department d ON d.id = r.department_id', function (err, results) {
         console.table('\n', results);
         mainMenu();
     })
@@ -128,13 +128,13 @@ inquirer.prompt([
             }
         }
     },
-    { 
+    {
         type: "input",
-        message: "Who is the employee's manager?",
-        name: "manager",
-        validate: (manager) => {
-            if(!manager) {
-                console.log("Please enter manager's name")
+        message: "What is the employee's title?",
+        name: "role_title",
+        validate: (role_title) => {
+            if(!role_title) {
+                console.log("Please enter a role title")
             } else {
                 return true
             }
@@ -142,18 +142,30 @@ inquirer.prompt([
     },
     {
         type: "input",
-        message: "What is the employee's role? Enter value 1-9",
-        name: "role_id",
-        validate: (role_id) => {
-            if(!role_id) {
-                console.log("Please enter a role number")
+        message: "What is the employee's salary?",
+        name: "role_title",
+        validate: (role_title) => {
+            if(!role_title) {
+                console.log("Please enter a role title")
+            } else {
+                return true
+            }
+        }
+    },
+    {
+        type: "input",
+        message: "Who is the employee's manager?",
+        name: "managerIDName",
+        validate: (managerIDName) => {
+            if(!managerIDName) {
+                console.log("Please enter a manager's name")
             } else {
                 return true
             }
         }
     }
 ]).then((data) => {
-    const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`
+    const sql = `INSERT INTO employee (first_name, last_name, department_name AS department, role_title, role_salary, manager_id) VALUES (?, ?, ?, ?, ?)`
     const params = [data.first_name, data.last_name, data.role_id, data.manager];
     db.query(sql, params, (err, results) => {
         if (err) throw err;
@@ -165,11 +177,19 @@ inquirer.prompt([
 }
 
 const addRole = () => {
+    let query = `SELECT r.id, r.title, r.salary, d.department_name AS department FROM role r LEFT JOIN department d ON r.department_id = d.id`
+
+    db.query(query, function (err, res) {
+        if (err) throw err;
+
+        const departmentChoice = res.map(({ id, department }) => ({
+            value: id, name: `${department}` 
+        })); 
 inquirer.prompt([
     {
     type: "input",
     message: "What role would you like to add?",
-    name: "role_title",
+    name: "title",
     validate: (title) => {
         if(!title) {
             console.log("Please enter a new role name")
@@ -179,22 +199,18 @@ inquirer.prompt([
     }
     },
     {
-        type: "input",
-        message: "What department ID should this role be assigned to?",
-        name: "department_id",
+        type: "list",
+        message: "Which department should the role be assigned to?",
+        name: "department",
+        choices: departmentChoice,
+        validate: (departmentChoice) => {
+            if(!departmentChoice) {
+                console.log("Please choose a department from the list")
+            } else {
+                return true
+            }
+        }
     },
-
-        // type: "list",
-        // message: "Which department should the role be assigned to?",
-        // name: "department_role",
-        // choices: [
-        //     "Legal",
-        //     "Payroll",
-        //     "Engineering",
-        //     "Public Relations",
-        //     "Sales"
-        // ]
-    //},
     {
         type: "input",
         message: "What is the salary of the role? Use whole numbers and decimals. Ex: 150000.75",
@@ -208,15 +224,16 @@ inquirer.prompt([
         }
     }
 ]).then((data) => {
-        const sql = `INSERT INTO role (role_title, department_id, role_salary) VALUES (?, ?, ?)`
-        const params = [data.title, data.department_id, data.salary];
+        const sql = `INSERT INTO role (title, department_id, salary) VALUES (?, ?, ?)`
+        const params = [data.title, data.department, data.salary];
         db.query(sql, params, (err, results) => {
             if (err) throw err;
             viewRoles()
             return results
         });
     });
-};
+});
+}
 
 const updateEmpRole = () => {
     let query = `SELECT e.id, e.first_name, e.last_name, r.title, d.department_name AS department, r.salary FROM employee e
