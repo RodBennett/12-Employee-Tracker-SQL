@@ -13,7 +13,7 @@ const db = mysql.createConnection(
     },
     console.log(`Connected to the employees_db database.`)
 );
-
+// promplt menu for the user
 const mainMenu = () => {
     inquirer.prompt([
     {
@@ -32,6 +32,7 @@ const mainMenu = () => {
             "Quit"
         ]
     }
+    // call functions for each choice in the user menu
 ]).then((data) => {
      if(data.menu === "View all departments") {
         viewDepts();
@@ -55,21 +56,21 @@ const mainMenu = () => {
     }
 });
 }
-
+// VIEW FUNCTIONS: View the list of employees with ID, first & last name, department, title, salary, manager id
 const viewEmployees = () => {
     db.query("SELECT e.id AS EmpID, e.first_name, e.last_name, d.department_name AS department, r.title, r.salary, e.manager_id AS manager FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON d.id = r.department_id", function (err, results) {
         console.table('\n', results);
         mainMenu();
       });
 }
-
+// function to view various departments
 const viewDepts = () => {
     db.query('SELECT d.id, d.department_name AS department FROM department d', function (err, results) {
         console.table('\n', results);
         mainMenu();
       });
 }
-
+// function to view all roles and titles of employees
 const viewRoles = () => {
     db.query('SELECT r.id, r.title, d.department_name AS department, r.salary FROM role r LEFT JOIN department d ON d.id = r.department_id', function (err, results) {
         console.table('\n', results);
@@ -77,6 +78,7 @@ const viewRoles = () => {
     })
 }
 
+// ADD FUNCTIONS: add a new department by name
 const addDept = () => {
     inquirer.prompt([
         {
@@ -101,7 +103,7 @@ const addDept = () => {
         });
     });
 }
-
+// function to add a new employee by name, role, and manager ID
 const addEmployee = () => {
 inquirer.prompt([
     {
@@ -130,23 +132,11 @@ inquirer.prompt([
     },
     {
         type: "input",
-        message: "What is the employee's title?",
-        name: "role_title",
-        validate: (role_title) => {
-            if(!role_title) {
-                console.log("Please enter a role title")
-            } else {
-                return true
-            }
-        }
-    },
-    {
-        type: "input",
-        message: "What is the employee's salary?",
-        name: "role_title",
-        validate: (role_title) => {
-            if(!role_title) {
-                console.log("Please enter a role title")
+        message: "What is the employee's title? Use numeric values: (1 = Engineer, 2 = HR Officer, 3 = Payroll Officer, 4 = Sales Associate, 5 = Legal Office)",
+        name: "title",
+        validate: (title) => {
+            if(!title) {
+                console.log("Please enter a title: 1 = Engineer, 2 = HR Officer, 3 = Payroll Officer, 4 = Sales Associate, 5 = Legal Office")
             } else {
                 return true
             }
@@ -163,25 +153,27 @@ inquirer.prompt([
                 return true
             }
         }
-    }
+    },
+// data from user passes into sql variable to be added to the table.
 ]).then((data) => {
-    const sql = `INSERT INTO employee (first_name, last_name, department_name AS department, role_title, role_salary, manager_id) VALUES (?, ?, ?, ?, ?)`
-    const params = [data.first_name, data.last_name, data.role_id, data.manager];
+    const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`
+    const params = [data.first_name, data.last_name, data.title, data.managerIDName];
     db.query(sql, params, (err, results) => {
         if (err) throw err;
-        viewEmployees()
-        console.log("Employee has been added")
+        //viewEmployees()
+        //console.log("Employee has been added")
         return results
     });
-});
+  });
 }
 
+// function to add a role to a department
 const addRole = () => {
     let query = `SELECT r.id, r.title, r.salary, d.department_name AS department FROM role r LEFT JOIN department d ON r.department_id = d.id`
 
     db.query(query, function (err, res) {
         if (err) throw err;
-
+        // variable to create a list of departments to populate in question prompt
         const departmentChoice = res.map(({ id, department }) => ({
             value: id, name: `${department}` 
         })); 
@@ -223,6 +215,7 @@ inquirer.prompt([
             }
         }
     }
+    // data from user then passes into role table and is added according to title, department_id, salary
 ]).then((data) => {
         const sql = `INSERT INTO role (title, department_id, salary) VALUES (?, ?, ?)`
         const params = [data.title, data.department, data.salary];
@@ -235,23 +228,44 @@ inquirer.prompt([
 });
 }
 
+// UPDATE function: update an existing employee's role 
 const updateEmpRole = () => {
+    // variable for selsected columns form tables to be used in updating function
     let query = `SELECT e.id, e.first_name, e.last_name, r.title, d.department_name AS department, r.salary FROM employee e
     JOIN role r ON e.role_id = r.id
     JOIN department d ON d.id = r.department_id`
 
     db.query(query, function (err, res) {
         if (err) throw err;
-
+        
         const employeeChoice = res.map(({ id, first_name, last_name }) => ({
             value: id, name: `${first_name} ${last_name}` 
+        
         }));
+       
+        roleUpdate(employeeChoice)
+    });
+}
+function roleUpdate(employeeChoice) {
+    let query = `SELECT r.id, r.title FROM role r`
 
+    db.query(query, function (err, res) {
+        if (err) throw err;
+
+        let roleChoice = res.map(({ id, title }) => ({
+            value: id, title: `${title}`
+        }));
+        promptUpdate(employeeChoice, roleChoice)
+    })
+
+}
+
+function promptUpdate(employeeChoice, roleChoice) {
     inquirer.prompt ([
         {
             type: "list",
             message: 'Choose an employee',
-            name: "updateEmp",
+            name: "name",
             choices: employeeChoice,
             validate: (updateEmp) => {
                 if(!updateEmp) {
@@ -262,9 +276,10 @@ const updateEmpRole = () => {
             }
         },
         {
-            type: "input",
+            type: "list",
             message: "What is employee's new role?",
-            name: "role_id",
+            name: "title",
+            choices: roleChoice,
             validate: (updateRole) => {
                 if(!updateRole) {
                     console.log('\n', "Please enter a new title number")
@@ -275,17 +290,15 @@ const updateEmpRole = () => {
         }
 
     ]).then((data) => {
-        const sql = `UPDATE employee SET role_id = ? WHERE title = ?`
-        const params = [data.title, data.id]
+        const sql = `UPDATE employee SET role_id = ? WHERE id = ?`
+        const params = [data.name, data.title]
             db.query(sql, params, function (err, results) {
                 if (err) throw err;
                 viewEmployees()
                 return results
-            })
-    })
-})
+            });
+    });
 }
-
 // const delEmp = () => {
 
 // }
