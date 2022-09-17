@@ -48,8 +48,6 @@ const mainMenu = () => {
         addEmployee();
     } else if(data.menu === "Update employee role") {
         updateEmpRole();
-    } else if(data.menu === "Delete an employee") {
-        delEmp();
     } else {
         console.log("Thank You & Goodbye")
         return;
@@ -58,7 +56,7 @@ const mainMenu = () => {
 }
 // VIEW FUNCTIONS: View the list of employees with ID, first & last name, department, title, salary, manager id
 const viewEmployees = () => {
-    db.query("SELECT e.id AS EmpID, e.first_name, e.last_name, d.department_name AS department, r.title, r.salary, e.manager_id AS manager FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON d.id = r.department_id", function (err, results) {
+    db.query("SELECT e.id AS EmpID, e.first_name, e.last_name, d.department_name AS department, r.title, r.salary, CONCAT(m.first_name) AS manager FROM employee e JOIN role r ON e.role_id = r.id JOIN department d ON d.id = r.department_id JOIN employee m ON m.id = e.manager_id", function (err, results) {
         console.table('\n', results);
         mainMenu();
       });
@@ -125,10 +123,9 @@ const addEmployee = () => {
         const managerChoice = res.map(({ id, first_name }) => 
             ({ 
                 value: id, 
-                name: `${first_name} ${last_name}`
+                name: `${first_name}`
             })
         );
-        console.log(employeeChoice)
         
     // add employee prompts for the user
 inquirer.prompt([
@@ -264,37 +261,28 @@ inquirer.prompt([
 
 // UPDATE function: update an existing employee's role 
 const updateEmpRole = () => {
-    // variable for selsected columns form tables to be used in updating function
-    let query = `SELECT e.id, e.first_name, e.last_name, r.title, d.department_name AS department, r.salary FROM employee e
-    JOIN role r ON e.role_id = r.id
-    JOIN department d ON d.id = r.department_id`
 
+    // variable to select columns from employe table to be used in updating function
+    let query = `SELECT e.id, e.first_name, e.last_name FROM employee e`
     db.query(query, function (err, res) {
         if (err) throw err;
-        
+
+        // variable to create list of employees to update on prompt menu SAVED as id
         const employeeChoice = res.map(({ id, first_name, last_name }) => ({
             value: id, name: `${first_name} ${last_name}` 
         }));
-       
-        roleUpdate(employeeChoice)
-    });
-}
-function roleUpdate(employeeChoice) {
-    let query = `SELECT r.id, r.title, r.salary FROM role r`
+ 
+        // variable to SELECT from role table
+    let query = `SELECT r.id, r.title FROM role r`
     db.query(query, function (err, res) {
         if (err) throw err;
 
         // create variable to present list of role choices to user, SAVE as id
         let roleChoice = res.map(({ id, title, salary }) => ({
-            value: id, name: `${title}`, salary: `${salary}`
+            value: id, name: `${title}`
         }));
 
-        promptUpdate(employeeChoice, roleChoice)
-    })
-}
-
-function promptUpdate(employeeChoice, roleChoice) {
-    inquirer.prompt ([
+inquirer.prompt ([
         {
             type: "list",
             message: 'Choose an employee',
@@ -321,7 +309,6 @@ function promptUpdate(employeeChoice, roleChoice) {
                 }
             }
         }
-
     ]).then((data) => {
         const sql = `UPDATE employee SET role_id = ? WHERE id = ?`
         const params = [data.name, data.title]
@@ -330,9 +317,9 @@ function promptUpdate(employeeChoice, roleChoice) {
                 viewEmployees()
                 return results
             });
+        });
     });
+});
 }
-// const delEmp = () => {
 
-// }
 mainMenu()
