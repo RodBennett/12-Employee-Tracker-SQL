@@ -205,9 +205,12 @@ const addRole = () => {
         if (err) throw err;
 
         // variable to create a list of departments to populate in question prompt and SAVE as id
-        const departmentChoice = res.map(({ id, department_name }) => ({
-            value: id, name: `${department_name}` 
-        })); 
+        const departmentChoice = res.map(({ id, department_name }) => (
+        {
+            value: id, 
+            name: `${department_name}` 
+        }
+    )); 
 
 // questions to be presented to the user        
 inquirer.prompt([
@@ -270,9 +273,12 @@ const updateEmpRole = () => {
         if (err) throw err;
 
         // variable to create list of employees to update on prompt menu SAVED as id
-        const employeeChoice = res.map(({ id, first_name, last_name }) => ({
-            value: id, name: `${first_name} ${last_name}` 
-        }));
+        const employeeChoice = res.map(({ id, first_name, last_name }) => (
+        {
+            value: id, 
+            name: `${first_name} ${last_name}` 
+        }
+    ));
  
         // variable to SELECT from role table
     let query = `SELECT r.id, r.title FROM role r`
@@ -315,8 +321,8 @@ inquirer.prompt ([
             }
         }
     ]).then((data) => {
-        const sql = `UPDATE employee SET role_id = ? WHERE id = ?`
-        const params = [data.name, data.title]
+        const sql = `UPDATE employee e SET role_id = ? WHERE id = ?`
+        const params = [data.title, data.name]
             db.query(sql, params, function (err, results) {
                 if (err) throw err;
                 viewEmployees()
