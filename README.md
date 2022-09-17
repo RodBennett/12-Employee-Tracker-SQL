@@ -1,38 +1,37 @@
 # 12 SQL: Employee Tracker
+*** Update employee function still incomplete
 
+### [Video Demo Link](https://drive.google.com/file/d/1P1r-07vK_6ifFtXAB69Awfj_E2xW00ng/view)
 
-User Story
+## User Story
 
 AS A business owner
 I WANT to be able to view and manage the departments, roles, and employees in my company
 SO THAT I can organize and plan my business
 
+## Technology Used:
+- MYSQL
+- mysql2 npm
+- inquirer npm
+- console.table npm
+
+## App description
+In this assignment, I was tasked with creating an employee tracker database using MYSQL as well as the inquirer question prompt npm.  The app starts off with a list of options for the user to select pertaining to managing a database of employees.
+
+![Screen Shot 2022-09-16 at 10 51 35 PM](https://user-images.githubusercontent.com/106923428/190841010-dd14b3e8-40f6-49f8-8129-e5b5aa3207ea.png)
 
 
-Acceptance Criteria
+Each option is associated with a function the server.js file, and the results of each option are immediately displayed in the terminal:
 
-GIVEN a command-line application that accepts user input
-WHEN I start the application
-THEN I am presented with the following options: view all departments, view all roles, view all employees, add a department, add a role, add an employee, and update an employee role
-WHEN I choose to view all departments
-THEN I am presented with a formatted table showing department names and department ids
-WHEN I choose to view all roles
-THEN I am presented with the job title, role id, the department that role belongs to, and the salary for that role
-WHEN I choose to view all employees
-THEN I am presented with a formatted table showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
-WHEN I choose to add a department
-THEN I am prompted to enter the name of the department and that department is added to the database
-WHEN I choose to add a role
-THEN I am prompted to enter the name, salary, and department for the role and that role is added to the database
-WHEN I choose to add an employee
-THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
-WHEN I choose to update an employee role
-THEN I am prompted to select an employee to update and their new role and this information is updated in the database 
+![Screen Shot 2022-09-16 at 10 53 01 PM](https://user-images.githubusercontent.com/106923428/190841044-6fec286a-b971-4763-b041-6be9a2a94513.png)
 
 
-Getting Started
-This Challenge will require a video submission. Refer to the Fullstack Blog Video Submission Guide for additional guidance on creating a video.
-You’ll need to use the MySQL2 package to connect to your MySQL database and perform queries, the Inquirer package to interact with the user via the command line, and the console.table package to print MySQL rows to the console.
-Important: You will be committing a file that contains your database credentials. Make sure that your MySQL password is not used for any other personal accounts, because it will be visible on GitHub. In upcoming lessons, you will learn how to better secure this password, or you can start researching npm packages now that could help you.
-You might also want to make your queries asynchronous. MySQL2 exposes a .promise() function on Connections to upgrade an existing non-Promise connection to use Promises. To learn more and make your queries asynchronous, refer to the npm documentation on MySQL2.
-Design the database schema as shown in the following image:
+## Installation
+To install this app, the employer must install the various npms in the package.js file by running npm i in the command line, and then run 'npm start' in the command line.
+
+## Future development:
+This project is still incomplete as the "update employee" function is still only partially functioning.  I intend to get to return to thjis in the next couple of weeks.
+
+
+
+
