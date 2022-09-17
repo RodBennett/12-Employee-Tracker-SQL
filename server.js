@@ -13,7 +13,7 @@ const db = mysql.createConnection(
     },
     console.log(`Connected to the employees_db database.`)
 );
-// promplt menu for the user
+// prompt menu for the user
 const mainMenu = () => {
     inquirer.prompt([
     {
@@ -65,7 +65,7 @@ const viewEmployees = () => {
 }
 // function to view various departments
 const viewDepts = () => {
-    db.query('SELECT d.id, d.department_name AS department FROM department d', function (err, results) {
+    db.query("SELECT d.id, d.department_name AS department FROM department d", function (err, results) {
         console.table('\n', results);
         mainMenu();
       });
@@ -78,7 +78,8 @@ const viewRoles = () => {
     })
 }
 
-// ADD FUNCTIONS: add a new department by name
+// ADD FUNCTIONS
+// Add a new department by name
 const addDept = () => {
     inquirer.prompt([
         {
@@ -105,6 +106,31 @@ const addDept = () => {
 }
 // function to add a new employee by name, role, and manager ID
 const addEmployee = () => {
+    // create variable to select role table in database
+    let query = `SELECT * FROM role`
+    db.query(query, function (err, res) {
+        if (err) throw err;
+        
+        // create a list of roles for user to choose from, SAVE values as id
+        const roleChoice = res.map(({ id, title, }) => ({
+            value: id, name: `${title}` 
+    })); 
+
+    // create query variable to select all from employee table
+    let employeeQuery = `SELECT * FROM employee`
+    db.query(employeeQuery, function(err, res) {
+        if (err) throw err;
+
+        // create a list of employee names to be used as managers, SAVE values as id
+        const managerChoice = res.map(({ id, first_name }) => 
+            ({ 
+                value: id, 
+                name: `${first_name} ${last_name}`
+            })
+        );
+        console.log(employeeChoice)
+        
+    // add employee prompts for the user
 inquirer.prompt([
     {
         type: "input",
@@ -131,52 +157,60 @@ inquirer.prompt([
         }
     },
     {
-        type: "input",
-        message: "What is the employee's title? Use numeric values: (1 = Engineer, 2 = HR Officer, 3 = Payroll Officer, 4 = Sales Associate, 5 = Legal Office)",
+        type: "list",
+        message: "What is the employee's title?",
         name: "title",
+        choices: roleChoice,
         validate: (title) => {
             if(!title) {
-                console.log("Please enter a title: 1 = Engineer, 2 = HR Officer, 3 = Payroll Officer, 4 = Sales Associate, 5 = Legal Office")
+                console.log("Please enter a title")
             } else {
                 return true
             }
         }
     },
     {
-        type: "input",
+        type: "list",
         message: "Who is the employee's manager?",
         name: "managerIDName",
-        validate: (managerIDName) => {
-            if(!managerIDName) {
+        choices: managerChoice,
+        validate: (managerChoice) => {
+            if(!managerChoice) {
                 console.log("Please enter a manager's name")
             } else {
                 return true
             }
         }
     },
+
 // data from user passes into sql variable to be added to the table.
 ]).then((data) => {
     const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`
     const params = [data.first_name, data.last_name, data.title, data.managerIDName];
-    db.query(sql, params, (err, results) => {
+    db.query(sql, params, (err) => {
         if (err) throw err;
-        //viewEmployees()
-        //console.log("Employee has been added")
-        return results
+        viewEmployees()
+        console.log("Employee has been added")
+        return;
     });
   });
+});
+});
 }
 
 // function to add a role to a department
 const addRole = () => {
-    let query = `SELECT r.id, r.title, r.salary, d.department_name AS department FROM role r LEFT JOIN department d ON r.department_id = d.id`
-
+    // create variable to select all from department
+    let query = `SELECT * FROM department`
     db.query(query, function (err, res) {
         if (err) throw err;
-        // variable to create a list of departments to populate in question prompt
-        const departmentChoice = res.map(({ id, department }) => ({
-            value: id, name: `${department}` 
+
+        // variable to create a list of departments to populate in question prompt and SAVE as id
+        const departmentChoice = res.map(({ id, department_name }) => ({
+            value: id, name: `${department_name}` 
         })); 
+
+// questions to be presented to the user        
 inquirer.prompt([
     {
     type: "input",
@@ -219,10 +253,10 @@ inquirer.prompt([
 ]).then((data) => {
         const sql = `INSERT INTO role (title, department_id, salary) VALUES (?, ?, ?)`
         const params = [data.title, data.department, data.salary];
-        db.query(sql, params, (err, results) => {
+        db.query(sql, params, (err) => {
             if (err) throw err;
             viewRoles()
-            return results
+            return 
         });
     });
 });
@@ -240,24 +274,23 @@ const updateEmpRole = () => {
         
         const employeeChoice = res.map(({ id, first_name, last_name }) => ({
             value: id, name: `${first_name} ${last_name}` 
-        
         }));
        
         roleUpdate(employeeChoice)
     });
 }
 function roleUpdate(employeeChoice) {
-    let query = `SELECT r.id, r.title FROM role r`
-
+    let query = `SELECT r.id, r.title, r.salary FROM role r`
     db.query(query, function (err, res) {
         if (err) throw err;
 
-        let roleChoice = res.map(({ id, title }) => ({
-            value: id, title: `${title}`
+        // create variable to present list of role choices to user, SAVE as id
+        let roleChoice = res.map(({ id, title, salary }) => ({
+            value: id, name: `${title}`, salary: `${salary}`
         }));
+
         promptUpdate(employeeChoice, roleChoice)
     })
-
 }
 
 function promptUpdate(employeeChoice, roleChoice) {
