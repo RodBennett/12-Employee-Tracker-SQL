@@ -28,7 +28,6 @@ const mainMenu = () => {
             "Add a role",
             "Add an employee",
             "Update employee role",
-            "Delete an employee",
             "Quit"
         ]
     }
@@ -110,9 +109,12 @@ const addEmployee = () => {
         if (err) throw err;
         
         // create a list of roles for user to choose from, SAVE values as id
-        const roleChoice = res.map(({ id, title, }) => ({
-            value: id, name: `${title}` 
-    })); 
+        const roleChoice = res.map(({ id, title, }) => (
+            {
+                value: id, 
+                name: `${title}` 
+            }
+        )); 
 
     // create query variable to select all from employee table
     let employeeQuery = `SELECT * FROM employee`
@@ -120,12 +122,12 @@ const addEmployee = () => {
         if (err) throw err;
 
         // create a list of employee names to be used as managers, SAVE values as id
-        const managerChoice = res.map(({ id, first_name }) => 
-            ({ 
+        const managerChoice = res.map(({ id, first_name }) => (
+            {
                 value: id, 
                 name: `${first_name}`
-            })
-        );
+            }
+        ));
         
     // add employee prompts for the user
 inquirer.prompt([
@@ -189,10 +191,10 @@ inquirer.prompt([
         viewEmployees()
         console.log("Employee has been added")
         return;
-    });
-  });
-});
-});
+        });
+      });
+   });
+ });
 }
 
 // function to add a role to a department
@@ -255,8 +257,8 @@ inquirer.prompt([
             viewRoles()
             return 
         });
-    });
-});
+     });
+  });
 }
 
 // UPDATE function: update an existing employee's role 
@@ -278,9 +280,12 @@ const updateEmpRole = () => {
         if (err) throw err;
 
         // create variable to present list of role choices to user, SAVE as id
-        let roleChoice = res.map(({ id, title, salary }) => ({
-            value: id, name: `${title}`
-        }));
+        let roleChoice = res.map(({ id, title }) => (
+        {
+            value: id, 
+            name: `${title}`
+        }
+    ));
 
 inquirer.prompt ([
         {
@@ -318,8 +323,8 @@ inquirer.prompt ([
                 return results
             });
         });
-    });
-});
+     });
+  });
 }
 
 mainMenu()
