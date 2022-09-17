@@ -1,7 +1,6 @@
 # 12 SQL: Employee Tracker
-*** Update employee function still incomplete
 
-### [Video Demo Link](https://drive.google.com/file/d/1P1r-07vK_6ifFtXAB69Awfj_E2xW00ng/view)
+### [Video Demo Link](https://drive.google.com/file/d/1-aNVrEzeoBUMxTywiJEk0vOV1PZylieS/view)
 
 ## User Story
 
@@ -30,7 +29,7 @@ Each option is associated with a function the server.js file, and the results of
 To install this app, the employer must install the various npms in the package.js file by running npm i in the command line, and then run 'npm start' in the command line.
 
 ## Future development:
-This project is still incomplete as the "update employee" function is still only partially functioning.  I intend to get to return to thjis in the next couple of weeks.
+This project is still incomplete as the optional "delete employee" function is still not written.  I intend to get to return to this in the next couple of weeks.
 
 
 
